@@ -164,37 +164,47 @@ with tab2:
                     
                     status_text.empty()
                     
-                    # Show debug info
-                    with st.expander("🔍 Debug Info - All Detections"):
-                        st.write(f"Total detections attempted: {len(all_detections)}")
-                        for det in all_detections[:20]:  # Show first 20
-                            st.write(f"Frame {det['frame']}: '{det['text']}' (conf: {det['conf']:.2f}, len: {len(det['text'])})")
+                    # Store results in session state
+                    st.session_state['video_plates'] = detected_plates
+                    st.session_state['video_name'] = uploaded_video.name
+                    st.session_state['all_detections'] = all_detections
                     
-                    st.success(f"Found {len(detected_plates)} unique plate(s)")
-                    
-                    if detected_plates:
-                        for plate_num, data in detected_plates.items():
-                            with st.expander(f"Plate: {plate_num} (Confidence: {data['conf']:.2f})", expanded=True):
-                                annotated = draw_boxes(data['frame'], [data['box']])
-                                st.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB))
-                                
-                                whitelisted = is_whitelisted(config.DB_PATH, plate_num)
-                                st.write(f"**Whitelist Status:** {'✅ Whitelisted' if whitelisted else '⚠️ Not Whitelisted'}")
-                                
-                                if st.button(f"Save to Log", key=f"vid_save_{plate_num}"):
-                                    try:
-                                        insert_log_entry(config.DB_PATH, plate_num, data['conf'], uploaded_video.name)
-                                        st.success(f"✅ Saved {plate_num} to database!")
-                                        st.balloons()
-                                    except Exception as e:
-                                        st.error(f"Error saving: {e}")
-                    else:
-                        st.warning("No plates detected in video. Check debug info above to see what was detected.")
-                
                 finally:
                     # Cleanup temp file
                     if os.path.exists(video_path):
                         os.unlink(video_path)
+        
+        # Display results from session state
+        if 'video_plates' in st.session_state and st.session_state['video_plates']:
+            detected_plates = st.session_state['video_plates']
+            video_name = st.session_state['video_name']
+            all_detections = st.session_state.get('all_detections', [])
+            
+            # Show debug info
+            with st.expander("🔍 Debug Info - All Detections"):
+                st.write(f"Total detections attempted: {len(all_detections)}")
+                for det in all_detections[:20]:  # Show first 20
+                    st.write(f"Frame {det['frame']}: '{det['text']}' (conf: {det['conf']:.2f}, len: {len(det['text'])})")
+            
+            st.success(f"Found {len(detected_plates)} unique plate(s)")
+            
+            for plate_num, data in detected_plates.items():
+                with st.expander(f"Plate: {plate_num} (Confidence: {data['conf']:.2f})", expanded=True):
+                    annotated = draw_boxes(data['frame'], [data['box']])
+                    st.image(cv2.cvtColor(annotated, cv2.COLOR_BGR2RGB))
+                    
+                    whitelisted = is_whitelisted(config.DB_PATH, plate_num)
+                    st.write(f"**Whitelist Status:** {'✅ Whitelisted' if whitelisted else '⚠️ Not Whitelisted'}")
+                    
+                    if st.button(f"Save to Log", key=f"vid_save_{plate_num}"):
+                        try:
+                            insert_log_entry(config.DB_PATH, plate_num, data['conf'], video_name)
+                            st.success(f"✅ Saved {plate_num} to database!")
+                            st.balloons()
+                        except Exception as e:
+                            st.error(f"Error saving: {e}")
+        elif 'video_plates' in st.session_state and not st.session_state['video_plates']:
+            st.warning("No plates detected in video.")
 
 # Tab 3: Log View
 with tab3:
