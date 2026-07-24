@@ -1,8 +1,8 @@
-ultralytics==8.0.196
-opencv-python==4.8.1.78
-easyocr==1.7.0
-streamlit==1.28.1
-torch==2.1.0
-torchvision==0.16.0
-python-dotenv==1.0.0
-groq==0.4.1
+ultralytics
+opencv-python-headless
+easyocr
+streamlit
+torch
+torchvision
+python-dotenv
+groq
