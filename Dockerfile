@@ -2,7 +2,7 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies with retry and better error handling
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libgl1 \
@@ -11,34 +11,34 @@ RUN apt-get update && \
     libxext6 \
     libxrender1 \
     libgomp1 \
-    libgthread-2.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Copy requirements
 COPY requirements.txt .
 
-# Install Python packages with no cache to save space
+# Install Python packages
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application
 COPY . .
 
-# Create necessary directories
+# Create directories
 RUN mkdir -p data models
 
-# Expose port for Render
+# Set environment to reduce memory usage
+ENV STREAMLIT_SERVER_MAX_UPLOAD_SIZE=200
+ENV STREAMLIT_SERVER_ENABLE_STATIC_SERVING=false
+
+# Expose port
 EXPOSE 10000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:10000/_stcore/health || exit 1
-
-# Run Streamlit
-CMD ["streamlit", "run", "app.py", \
-     "--server.port=10000", \
-     "--server.address=0.0.0.0", \
-     "--server.headless=true", \
-     "--server.enableCORS=false", \
-     "--server.enableXsrfProtection=false"]
+# Run Streamlit without health check in CMD
+CMD streamlit run app.py \
+    --server.port=10000 \
+    --server.address=0.0.0.0 \
+    --server.headless=true \
+    --server.enableCORS=false \
+    --browser.gatherUsageStats=false \
+    --logger.level=error
