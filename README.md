@@ -1,6 +1,15 @@
+---
+title: Smart ANPR System
+emoji: 🚗
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+---
+
 # Smart ANPR System
 
-Automated Number Plate Recognition system with natural language query capabilities.
+Automated Number Plate Recognition system using YOLOv8, EasyOCR, and Groq LLM.
 
 ## Features
 
@@ -13,74 +22,21 @@ Automated Number Plate Recognition system with natural language query capabiliti
 
 ## Setup
 
-### 1. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Get Groq API Key
-
-1. Visit [console.groq.com](https://console.groq.com)
-2. Sign up for a free account
-3. Generate an API key
-4. Copy `.env.example` to `.env` and add your key:
-
-```
-GROQ_API_KEY=your_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
-```
-
-### 3. Download YOLOv8 Model
-
-The app will auto-download `yolov8n.pt` on first run. For better plate detection, you can use a fine-tuned model in `models/`.
-
-### 4. Add Sample Images
-
-Place test vehicle images in `data/sample_images/` for testing.
+Add your Groq API key in Space Settings → Repository secrets:
+- Name: `GROQ_API_KEY`
+- Value: Your API key from console.groq.com
 
 ## Usage
 
-### Run the App
-
-```bash
-streamlit run app.py
-```
-
-### 60-Second Demo
-
-1. **Detect Image Tab**: Upload a vehicle image → Click "Detect Plates" → View OCR results → Save to log
-2. **Detect Video Tab**: Upload video → Set FPS → Process → Review unique plates → Save to log
-3. **Log Tab**: See all detected plates with timestamps → Add plates to whitelist
-4. **Ask Tab**: Type questions like "Which vehicles entered today?" or "Show non-whitelisted plates"
-
-## Project Structure
-
-```
-anpr-project/
-├── app.py              # Streamlit interface
-├── config.py           # Configuration
-├── src/
-│   ├── detection/      # YOLOv8 detection
-│   ├── ocr/            # EasyOCR reader
-│   ├── llm/            # Groq client
-│   ├── db/             # SQLite operations
-│   └── utils/          # Helper functions
-├── data/               # Database and images
-└── models/             # YOLO weights
-```
-
-## Example Questions
-
-- "Which vehicles entered after 6pm today?"
-- "List all non-whitelisted plates"
-- "How many unique vehicles were detected?"
-- "Show me the most recent entry"
+1. **Detect Image Tab**: Upload vehicle images for plate detection
+2. **Detect Video Tab**: Upload videos and process at selected FPS
+3. **Log Tab**: View all detected plates with timestamps and whitelist status
+4. **Ask Tab**: Query logs using natural language
 
 ## Tech Stack
 
-- **Detection**: YOLOv8 (ultralytics)
-- **OCR**: EasyOCR
-- **Frontend**: Streamlit
-- **LLM**: Groq API
-- **Database**: SQLite
+- Detection: YOLOv8 (Ultralytics)
+- OCR: EasyOCR
+- Frontend: Streamlit
+- LLM: Groq API (Llama 3.3)
+- Database: SQLite
