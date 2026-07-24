@@ -22,8 +22,8 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p data models
 
-# Expose Streamlit port
-EXPOSE 7860
+# Expose port
+EXPOSE 10000
 
 # Run Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=7860", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0", "--server.headless=true"]
