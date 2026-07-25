@@ -1,11 +1,4 @@
----
-title: Smart ANPR System
-emoji: 🚗
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
----
+
 
 # Smart ANPR System
 
